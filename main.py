@@ -72,14 +72,8 @@ def load_user(employee_id):
     return Employees.query.get(employee_id)
 
 
-# DEBUG REMEMBER ME
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    # Take care of security while logging in
-    # set session variable for email
-    # fetch designation from  employees table to direct to correct dashboard
-    # flash error msg for wrong credentials
-    # flash error msg if user is registered but not assigned
     if current_user.is_authenticated:
         if current_user.designation == 'Founder':
             return redirect('/dashboard/admin/')
@@ -114,12 +108,6 @@ def logout():
 
 @dashboard.route('/admin/')
 def admin_dashboard():
-    # filter by all projects
-    # show active projects first and then completed ones as well
-    # add project option
-    # open project on a new page after clicking on the project card and the page should have the options for assigning people edit and delete
-    # edit page should display a table of currently assigned employees with an option to delete them
-    # assign page should have a dropdown with a list of all the employees to select from them
     project1 = Projects.query.filter_by(status='ACTIVE').all()
     project2 = Projects.query.filter_by(status='COMPLETED').all()
     department = Departments.query.filter_by().all()
@@ -128,12 +116,6 @@ def admin_dashboard():
 
 @dashboard.route('/branch_head/')
 def branch_head_dashboard():
-    # add project option
-    # open project on a new page after clicking on the project card and the page should have the options for assigning people edit and delete
-    # edit page should display a table of currently assigned employees with an option to delete them
-    # assign page should have a dropdown with a list of all the employees to select from them
-    # either create session variable of branch and use it to fetch projects of the branch to display to the branchhead
-    # Or fetch branch from employee table using filter with sno = session['sno'] and then use branch of that employee i.e. employee.branch to filter projects
     project1 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'ACTIVE')).all()
     project2 = Projects.query.filter((Projects.branch == current_user.branch) & (Projects.status == 'COMPLETED')).all()
     department = Departments.query.filter_by().all()
@@ -142,7 +124,6 @@ def branch_head_dashboard():
 
 @dashboard.route('/employee/')
 def employee_dashboard():
-    # filter projects using email of the respective person
     projects = Projects.query.filter_by().all()
     assignedprojects = []
     for project in projects:
@@ -288,8 +269,6 @@ def project_delete(sno):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_employee():
-    # check if the user is in session part to be activates once we complete dashboard login part and thus set the session variable
-    # if user in session and session['user'] ==:
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
@@ -348,8 +327,6 @@ def register_login():
 
 @new_employee.route('/', methods=['GET', 'POST'])
 def new():
-    # display table of employees with department or branch as not assigned also need to make frontend template
-    # name email branch department (designation) assign delete
     if current_user.designation == "Founder":
         employees = New.query.filter_by().all()
         total_branches = Branches.query.filter_by().all()
@@ -360,7 +337,6 @@ def new():
     return render_template('new.html', employees=employees, user=current_user, total_branches=total_branches)
 
 
-# test the following
 @new_employee.route('/assign/<string:id>', methods=['GET', 'POST'])
 def new_assign(id):
     if request.method == 'POST':
@@ -446,7 +422,6 @@ def delete_department(sno):
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    # sno, name, department, employee, branch, date, status, description
     if request.method == 'POST':
         name = request.form.get('name')
         employee = request.form.get('employee')
@@ -468,7 +443,6 @@ def add():
                          report="[]")
         db.session.add(entry)
         db.session.commit()
-    # query department and branches from table
     total_branches = Branches.query.filter_by().all()
     total_departments = Departments.query.filter_by().all()
     total_status = ['ACTIVE', 'COMPLETED']
@@ -485,7 +459,6 @@ def add():
                            user=current_user)
 
 
-# test entire employee module
 @employee.route('/admin/')
 def employee_admin():
     employees = Employees.query.filter_by().all()
@@ -571,8 +544,6 @@ def employee_branch_head_delete(id):
 
 @branch.route('/')
 def branches():
-    # display branches table only to founder
-    # Create edit add delete options with separate pages i.e. create frontend for edit  and add
     branches = Branches.query.filter_by().all()
     return render_template('branches.html', branches=branches, user=current_user)
 
@@ -590,10 +561,6 @@ def add_branchs():
 
 
 @branch.route('/edit/<string:sno>', methods=['GET', 'POST'])
-# value repeating in dropdown(delhi delhi)
-# update queries (for designation) accordingly if
-# 1. branch-head is changed
-# 2. branch is deleted
 def edit_branch(sno):
     if request.method == 'POST':
         name = request.form.get('name')
@@ -620,26 +587,14 @@ def branch_delete(sno):
 
 @department.route('/')
 def departments():
-    # display departments table only to founder
-    # Create add and delete
-    # create add by toggle option or drop down or drop down form
     departments = Departments.query.filter_by().all()
     return render_template('department.html', departments=departments, user=current_user)
 
 @app.route('/profile')
 def profile():
-    # use session variable to get email and display details accordingly
-    # improve frontend
-    # profile edit option
     return render_template('profile.html', user=current_user)
 
 
-@app.route('/forgot_password')
-def forgot_password():
-    # think the approach as we have prob with smtp server while hosting so cant send emails
-    pass
-
-#complete the code(backend)
 @app.route('/change_password', methods=['GET','POST'])
 def change_password():
     if request.method == 'POST':
